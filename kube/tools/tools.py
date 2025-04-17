@@ -60,6 +60,45 @@ def list_services_from_namespace(namespace: str = "default") -> list:
     services = api_v1.list_namespaced_service(namespace)
     return [svc.metadata.name for svc in services.items]
 
+def list_secrets_from_namespace(namespace: str = "default") -> list:
+    """
+    List all secrets in a specific namespace.
+
+    Args:
+        namespace (str): The namespace to list secrets from. Defaults to "default".
+
+    Returns:
+        list: A list of secret names in the specified namespace.
+    """
+    secrets = api_v1.list_namespaced_secret(namespace)
+    return [secret.metadata.name for secret in secrets.items]
+
+def list_daemonsets_from_namespace(namespace: str = "default") -> list:
+    """
+    List all daemonsets in a specific namespace.
+
+    Args:
+        namespace (str): The namespace to list daemonsets from. Defaults to "default".
+
+    Returns:
+        list: A list of daemonset names in the specified namespace.
+    """
+    daemonsets = apps_v1.list_namespaced_daemon_set(namespace)
+    return [ds.metadata.name for ds in daemonsets.items]
+
+def list_configmaps_from_namespace(namespace: str = "default") -> list:
+    """
+    List all configmaps in a specific namespace.
+
+    Args:
+        namespace (str): The namespace to list configmaps from. Defaults to "default".
+
+    Returns:
+        list: A list of configmap names in the specified namespace.
+    """
+    configmaps = api_v1.list_namespaced_config_map(namespace)
+    return [cm.metadata.name for cm in configmaps.items]
+
 def list_all_resources(namespace: str = "default") -> dict:
     """
     List all resources in a specific namespace.
@@ -68,12 +107,15 @@ def list_all_resources(namespace: str = "default") -> dict:
         namespace (str): The namespace to list resources from. Defaults to "default".
 
     Returns:
-        dict: A dictionary containing lists of deployments, pods, and services for a specific namespace.
+        dict: A dictionary containing lists of deployments, pods, services, secrets, daemonsets, and configmaps for a specific namespace.
     """
     resources = {
         "deployments": list_deployments_from_namespace(namespace),
         "pods": list_pods_from_namespace(namespace),
-        "services": list_services_from_namespace(namespace)
+        "services": list_services_from_namespace(namespace),
+        "secrets": list_secrets_from_namespace(namespace),
+        "daemonsets": list_daemonsets_from_namespace(namespace),
+        "configmaps": list_configmaps_from_namespace(namespace)
     }
     return resources
 
@@ -248,6 +290,9 @@ __all__ = [
     "list_deployments_from_namespace",
     "list_pods_from_namespace",
     "list_services_from_namespace",
+    "list_secrets_from_namespace",  
+    "list_daemonsets_from_namespace", 
+    "list_configmaps_from_namespace",
     "list_all_resources",
     "get_deployment_details",
     "get_pod_details",
