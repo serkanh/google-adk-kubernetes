@@ -2,7 +2,9 @@
 
 A Google Agent Development Kit (ADK) powered assistant that interacts with Kubernetes clusters to provide information about resources.
 
-<img src="imgs/google-adk.png" width="60%" height="70%"> 
+
+[![Kubernetes Assistant Demo](https://img.youtube.com/vi/8Ietd_RVGNY/0.jpg)](https://www.youtube.com/watch?v=8Ietd_RVGNY "Kubernetes Assistant Demo")
+
 
 ## Overview
 
