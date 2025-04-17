@@ -66,7 +66,10 @@ adk web
 ## Structure
 
 - `kube/`
-  - `tools.py`: Contains Kubernetes API functions used by the agent
+  - `agent.py`: Contains the agent code
+  - `tools/`
+    - `__init__.py`
+    - `tools.py`: Contains Kubernetes API functions used by the agent
   - `__init__.py`: Package initialization file
 - `requirements.txt`: Lists all required Python packages
 

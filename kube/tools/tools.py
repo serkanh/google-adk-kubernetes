@@ -14,19 +14,19 @@ batch_v1 = client.BatchV1Api()
 def list_namespaces() -> list:
     """
     List all namespaces in the Kubernetes cluster.
-    
+
     Returns:
         list: A list of namespace names.
     """
     namespaces = api_v1.list_namespace()
     return [ns.metadata.name for ns in namespaces.items]
 
-def list_deployments_from_namespace(namespace: str) -> list:
+def list_deployments_from_namespace(namespace: str = "default") -> list:
     """
     List all deployments in a specific namespace.
 
     Args:
-        namespace (str): The namespace to list deployments from.
+        namespace (str): The namespace to list deployments from. Defaults to "default".
 
     Returns:
         list: A list of deployment names in the specified namespace.
@@ -34,12 +34,12 @@ def list_deployments_from_namespace(namespace: str) -> list:
     deployments = apps_v1.list_namespaced_deployment(namespace)
     return [deploy.metadata.name for deploy in deployments.items]
 
-def list_pods_from_namespace(namespace: str) -> list:
+def list_pods_from_namespace(namespace: str = "default") -> list:
     """
     List all pods in a specific namespace.
 
     Args:
-        namespace (str): The namespace to list pods from.
+        namespace (str): The namespace to list pods from. Defaults to "default".
 
     Returns:
         list: A list of pod names in the specified namespace.
@@ -47,12 +47,12 @@ def list_pods_from_namespace(namespace: str) -> list:
     pods = api_v1.list_namespaced_pod(namespace)
     return [pod.metadata.name for pod in pods.items]
 
-def list_services_from_namespace(namespace: str) -> list:
+def list_services_from_namespace(namespace: str = "default") -> list:
     """
     List all services in a specific namespace.
 
     Args:
-        namespace (str): The namespace to list services from.
+        namespace (str): The namespace to list services from. Defaults to "default".
 
     Returns:
         list: A list of service names in the specified namespace.
@@ -60,12 +60,12 @@ def list_services_from_namespace(namespace: str) -> list:
     services = api_v1.list_namespaced_service(namespace)
     return [svc.metadata.name for svc in services.items]
 
-def list_all_resources(namespace: str) -> dict:
+def list_all_resources(namespace: str = "default") -> dict:
     """
     List all resources in a specific namespace.
 
     Args:
-        namespace (str): The namespace to list resources from.
+        namespace (str): The namespace to list resources from. Defaults to "default".
 
     Returns:
         dict: A dictionary containing lists of deployments, pods, and services for a specific namespace.
@@ -77,13 +77,13 @@ def list_all_resources(namespace: str) -> dict:
     }
     return resources
 
-def get_deployment_details(namespace: str, deployment_name: str) -> Dict:
+def get_deployment_details(deployment_name: str, namespace: str = "default") -> Dict:
     """
     Get detailed information about a specific deployment.
 
     Args:
-        namespace (str): The namespace of the deployment.
         deployment_name (str): The name of the deployment.
+        namespace (str): The namespace of the deployment. Defaults to "default".
 
     Returns:
         Dict: Detailed information about the deployment.
@@ -101,13 +101,13 @@ def get_deployment_details(namespace: str, deployment_name: str) -> Dict:
     except ApiException as e:
         return {"error": f"Failed to get deployment details: {str(e)}"}
 
-def get_pod_details(namespace: str, pod_name: str) -> Dict:
+def get_pod_details(pod_name: str, namespace: str = "default") -> Dict:
     """
     Get detailed information about a specific pod.
 
     Args:
-        namespace (str): The namespace of the pod.
         pod_name (str): The name of the pod.
+        namespace (str): The namespace of the pod. Defaults to "default".
 
     Returns:
         Dict: Detailed information about the pod.
@@ -126,14 +126,14 @@ def get_pod_details(namespace: str, pod_name: str) -> Dict:
     except ApiException as e:
         return {"error": f"Failed to get pod details: {str(e)}"}
 
-def scale_deployment(namespace: str, deployment_name: str, replicas: int) -> Dict:
+def scale_deployment(deployment_name: str, replicas: int, namespace: str = "default") -> Dict:
     """
     Scale a deployment to a specific number of replicas.
 
     Args:
-        namespace (str): The namespace of the deployment.
         deployment_name (str): The name of the deployment.
         replicas (int): The desired number of replicas.
+        namespace (str): The namespace of the deployment. Defaults to "default".
 
     Returns:
         Dict: Status of the scaling operation.
@@ -141,17 +141,17 @@ def scale_deployment(namespace: str, deployment_name: str, replicas: int) -> Dic
     try:
         body = {"spec": {"replicas": replicas}}
         apps_v1.patch_namespaced_deployment_scale(deployment_name, namespace, body)
-        return {"status": "success", "message": f"Scaled deployment {deployment_name} to {replicas} replicas"}
+        return {"status": "success", "message": f"Scaled deployment {deployment_name} in namespace {namespace} to {replicas} replicas"}
     except ApiException as e:
         return {"status": "error", "message": f"Failed to scale deployment: {str(e)}"}
 
-def get_pod_logs(namespace: str, pod_name: str, container: Optional[str] = None, tail_lines: int = 100) -> str:
+def get_pod_logs(pod_name: str, namespace: str = "default", container: Optional[str] = None, tail_lines: int = 100) -> str:
     """
     Get logs from a specific pod.
 
     Args:
-        namespace (str): The namespace of the pod.
         pod_name (str): The name of the pod.
+        namespace (str): The namespace of the pod. Defaults to "default".
         container (str, optional): The name of the container to get logs from.
         tail_lines (int): Number of lines to return from the end of the logs.
 
@@ -168,14 +168,14 @@ def get_pod_logs(namespace: str, pod_name: str, container: Optional[str] = None,
     except ApiException as e:
         return f"Failed to get pod logs: {str(e)}"
 
-def get_resource_health(namespace: str, resource_type: str, resource_name: str) -> Dict:
+def get_resource_health(resource_name: str, resource_type: str, namespace: str = "default") -> Dict:
     """
     Get health status of a specific resource.
 
     Args:
-        namespace (str): The namespace of the resource.
-        resource_type (str): Type of resource (pod, deployment, service).
         resource_name (str): Name of the resource.
+        resource_type (str): Type of resource (pod, deployment, service).
+        namespace (str): The namespace of the resource. Defaults to "default".
 
     Returns:
         Dict: Health status of the resource.
@@ -183,10 +183,12 @@ def get_resource_health(namespace: str, resource_type: str, resource_name: str) 
     try:
         if resource_type == "pod":
             pod = api_v1.read_namespaced_pod(resource_name, namespace)
+            # Check if container_statuses is None before summing restart counts
+            restart_count = sum(cs.restart_count for cs in pod.status.container_statuses) if pod.status.container_statuses else 0
             return {
                 "status": pod.status.phase,
-                "ready": all(condition.status == "True" for condition in pod.status.conditions),
-                "restart_count": sum(container.restart_count for container in pod.status.container_statuses)
+                "ready": all(condition.status == "True" for condition in pod.status.conditions if pod.status.conditions),
+                "restart_count": restart_count
             }
         elif resource_type == "deployment":
             deployment = apps_v1.read_namespaced_deployment(resource_name, namespace)
@@ -200,22 +202,21 @@ def get_resource_health(namespace: str, resource_type: str, resource_name: str) 
     except ApiException as e:
         return {"error": f"Failed to get resource health: {str(e)}"}
 
-def get_events(namespace: str = None, limit: int = 200) -> List[Dict]:
+def get_events(namespace: str = "default", limit: int = 200) -> List[Dict]:
     """
     Get Kubernetes events with a configurable limit.
 
     Args:
-        namespace (str, optional): The namespace to get events from. If None, gets events from all namespaces.
+        namespace (str): The namespace to get events from. Defaults to "default".
         limit (int): Maximum number of events to return. Default is 200.
 
     Returns:
         List[Dict]: List of events with their details.
     """
     try:
-        if namespace:
-            events = api_v1.list_namespaced_event(namespace, limit=limit)
-        else:
-            events = api_v1.list_event_for_all_namespaces(limit=limit)
+        # Now defaults to 'default' namespace. Explicitly passing None is not supported via this default.
+        # If all namespaces are needed, a separate function or mechanism might be required.
+        events = api_v1.list_namespaced_event(namespace, limit=limit)
 
         formatted_events = []
         for event in events.items:
@@ -254,4 +255,4 @@ __all__ = [
     "get_pod_logs",
     "get_resource_health",
     "get_events"
-]
+] 
