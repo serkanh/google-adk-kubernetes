@@ -244,9 +244,34 @@ def get_resource_health(resource_name: str, resource_type: str, namespace: str =
     except ApiException as e:
         return {"error": f"Failed to get resource health: {str(e)}"}
 
+def _format_k8s_events(events_items: List) -> List[Dict]:
+    """Internal helper to format Kubernetes event objects."""
+    formatted_events = []
+    for event in events_items:
+        formatted_events.append({
+            "name": event.metadata.name,
+            "namespace": event.metadata.namespace,
+            "type": event.type,
+            "reason": event.reason,
+            "message": event.message,
+            "source": {
+                "component": event.source.component if event.source else None,
+                "host": event.source.host if event.source else None
+            },
+            "first_seen": event.first_timestamp.isoformat() if event.first_timestamp else None,
+            "last_seen": event.last_timestamp.isoformat() if event.last_timestamp else None,
+            "count": event.count,
+            "involved_object": {
+                "kind": event.involved_object.kind,
+                "name": event.involved_object.name,
+                "namespace": event.involved_object.namespace
+            } if event.involved_object else None
+        })
+    return formatted_events
+
 def get_events(namespace: str = "default", limit: int = 200) -> List[Dict]:
     """
-    Get Kubernetes events with a configurable limit.
+    Get Kubernetes events for a specific namespace with a configurable limit.
 
     Args:
         namespace (str): The namespace to get events from. Defaults to "default".
@@ -256,42 +281,34 @@ def get_events(namespace: str = "default", limit: int = 200) -> List[Dict]:
         List[Dict]: List of events with their details.
     """
     try:
-        # Now defaults to 'default' namespace. Explicitly passing None is not supported via this default.
-        # If all namespaces are needed, a separate function or mechanism might be required.
         events = api_v1.list_namespaced_event(namespace, limit=limit)
-
-        formatted_events = []
-        for event in events.items:
-            formatted_events.append({
-                "name": event.metadata.name,
-                "namespace": event.metadata.namespace,
-                "type": event.type,
-                "reason": event.reason,
-                "message": event.message,
-                "source": {
-                    "component": event.source.component if event.source else None,
-                    "host": event.source.host if event.source else None
-                },
-                "first_seen": event.first_timestamp.isoformat() if event.first_timestamp else None,
-                "last_seen": event.last_timestamp.isoformat() if event.last_timestamp else None,
-                "count": event.count,
-                "involved_object": {
-                    "kind": event.involved_object.kind,
-                    "name": event.involved_object.name,
-                    "namespace": event.involved_object.namespace
-                } if event.involved_object else None
-            })
-        return formatted_events
+        return _format_k8s_events(events.items)
     except ApiException as e:
-        return [{"error": f"Failed to get events: {str(e)}"}]
+        return [{"error": f"Failed to get events for namespace {namespace}: {str(e)}"}]
+
+def get_events_all_namespaces(limit: int = 200) -> List[Dict]:
+    """
+    Get Kubernetes events across all namespaces with a configurable limit.
+
+    Args:
+        limit (int): Maximum number of events to return. Default is 200.
+
+    Returns:
+        List[Dict]: List of events from all namespaces with their details.
+    """
+    try:
+        events = api_v1.list_event_for_all_namespaces(limit=limit)
+        return _format_k8s_events(events.items)
+    except ApiException as e:
+        return [{"error": f"Failed to get events across all namespaces: {str(e)}"}]
 
 __all__ = [
     "list_namespaces",
     "list_deployments_from_namespace",
     "list_pods_from_namespace",
     "list_services_from_namespace",
-    "list_secrets_from_namespace",  
-    "list_daemonsets_from_namespace", 
+    "list_secrets_from_namespace",
+    "list_daemonsets_from_namespace",
     "list_configmaps_from_namespace",
     "list_all_resources",
     "get_deployment_details",
@@ -299,5 +316,6 @@ __all__ = [
     "scale_deployment",
     "get_pod_logs",
     "get_resource_health",
-    "get_events"
+    "get_events",
+    "get_events_all_namespaces"
 ] 
