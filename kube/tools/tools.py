@@ -34,6 +34,26 @@ def list_deployments_from_namespace(namespace: str = "default") -> list:
     deployments = apps_v1.list_namespaced_deployment(namespace)
     return [deploy.metadata.name for deploy in deployments.items]
 
+def list_deployments_all_namespaces() -> List[Dict]:
+    """
+    List deployments across all namespaces.
+
+    Returns:
+        List[Dict]: A list of dictionaries, each containing deployment name and namespace.
+    """
+    try:
+        deployments = apps_v1.list_deployment_for_all_namespaces()
+        return [
+            {
+                "name": deploy.metadata.name,
+                "namespace": deploy.metadata.namespace,
+                "replicas": deploy.spec.replicas,
+            }
+            for deploy in deployments.items
+        ]
+    except ApiException as e:
+        return [{"error": f"Failed to list deployments across all namespaces: {str(e)}"}]
+
 def list_pods_from_namespace(namespace: str = "default") -> list:
     """
     List all pods in a specific namespace.
@@ -46,6 +66,26 @@ def list_pods_from_namespace(namespace: str = "default") -> list:
     """
     pods = api_v1.list_namespaced_pod(namespace)
     return [pod.metadata.name for pod in pods.items]
+
+def list_pods_all_namespaces() -> List[Dict]:
+    """
+    List pods across all namespaces.
+
+    Returns:
+        List[Dict]: A list of dictionaries, each containing pod name, namespace, and status.
+    """
+    try:
+        pods = api_v1.list_pod_for_all_namespaces()
+        return [
+            {
+                "name": pod.metadata.name,
+                "namespace": pod.metadata.namespace,
+                "status": pod.status.phase
+            }
+            for pod in pods.items
+        ]
+    except ApiException as e:
+        return [{"error": f"Failed to list pods across all namespaces: {str(e)}"}]
 
 def list_services_from_namespace(namespace: str = "default") -> list:
     """
@@ -305,7 +345,9 @@ def get_events_all_namespaces(limit: int = 200) -> List[Dict]:
 __all__ = [
     "list_namespaces",
     "list_deployments_from_namespace",
+    "list_deployments_all_namespaces",
     "list_pods_from_namespace",
+    "list_pods_all_namespaces",
     "list_services_from_namespace",
     "list_secrets_from_namespace",
     "list_daemonsets_from_namespace",
