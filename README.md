@@ -2,6 +2,8 @@
 
 A Google Agent Development Kit (ADK) powered assistant that interacts with Kubernetes clusters to provide information about resources.
 
+<img src="imgs/google-adk.png" width="60%" height="70%"> 
+
 ## Overview
 
 This repository contains a Kubernetes Assistant Agent built with Google's Agent Development Kit (ADK) that can help you manage and monitor your Kubernetes clusters through natural language conversations. The agent leverages the Google Gemini model to understand user queries and uses Kubernetes API functions to retrieve information from your cluster.
@@ -60,6 +62,8 @@ Run the agent using the following command:
 ```bash
 adk web
 ```
+
+This will start the agent in web mode, allowing you to interact with it through a web interface on localhost:8000.
 
 ## Structure
 
