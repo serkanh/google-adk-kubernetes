@@ -11,15 +11,13 @@ This repository contains a Kubernetes Assistant Agent built with Google's Agent 
 The Kubernetes Assistant can:
 
 - List all namespaces in your Kubernetes cluster
-- List deployments in a specific namespace
-- List pods in a specific namespace
-- List services in a specific namespace
-- Retrieve all resources (deployments, pods, services) in a specific namespace
+- List deployments, pods, services, secrets, daemonsets, and configmaps in a specific namespace
+- Retrieve all major resources (deployments, pods, services, secrets, daemonsets, configmaps) in a specific namespace
 - Get detailed information about deployments and pods
 - Scale deployments to desired replica counts
 - Retrieve pod logs for debugging
-- Monitor resource health status
-- Get cluster events with configurable limits
+- Monitor resource health status (pods and deployments)
+- Get cluster events for a specific namespace or across all namespaces with configurable limits
 
 ## Prerequisites
 
@@ -72,6 +70,7 @@ adk web
     - `tools.py`: Contains Kubernetes API functions used by the agent
   - `__init__.py`: Package initialization file
 - `requirements.txt`: Lists all required Python packages
+- `README.md`: This documentation file
 
 
 ## Available Functions
@@ -81,19 +80,23 @@ adk web
 - `list_deployments_from_namespace(namespace)`: List deployments in a namespace
 - `list_pods_from_namespace(namespace)`: List pods in a namespace
 - `list_services_from_namespace(namespace)`: List services in a namespace
-- `list_all_resources(namespace)`: List all resources in a namespace
+- `list_secrets_from_namespace(namespace)`: List secrets in a namespace
+- `list_daemonsets_from_namespace(namespace)`: List daemonsets in a namespace
+- `list_configmaps_from_namespace(namespace)`: List configmaps in a namespace
+- `list_all_resources(namespace)`: List major resources (deployments, pods, services, secrets, daemonsets, configmaps) in a namespace
 
 ### Deployment Operations
-- `get_deployment_details(namespace, deployment_name)`: Get detailed deployment information
-- `scale_deployment(namespace, deployment_name, replicas)`: Scale a deployment
+- `get_deployment_details(deployment_name, namespace)`: Get detailed deployment information
+- `scale_deployment(deployment_name, replicas, namespace)`: Scale a deployment
 
 ### Pod Operations
-- `get_pod_details(namespace, pod_name)`: Get detailed pod information
-- `get_pod_logs(namespace, pod_name, container=None, tail_lines=100)`: Get pod logs
+- `get_pod_details(pod_name, namespace)`: Get detailed pod information
+- `get_pod_logs(pod_name, namespace, container=None, tail_lines=100)`: Get pod logs
 
 ### Monitoring
-- `get_resource_health(namespace, resource_type, resource_name)`: Check resource health
-- `get_events(namespace=None, limit=200)`: Get cluster events
+- `get_resource_health(resource_name, resource_type, namespace)`: Check resource health (supports 'pod' and 'deployment')
+- `get_events(namespace, limit=200)`: Get cluster events for a specific namespace
+- `get_events_all_namespaces(limit=200)`: Get cluster events across all namespaces
 
 ## Security Note
 
