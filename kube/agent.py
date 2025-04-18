@@ -23,6 +23,11 @@ root_agent = Agent(
         get_pod_logs, 
         get_resource_health, 
         get_events,
-        get_events_all_namespaces
+        get_events_all_namespaces,
+        get_node_status,
+        get_resource_consumption,
+        diagnose_network_connectivity,
+        list_nodes,
+        get_pods_on_node
     ],
 )
