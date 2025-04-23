@@ -67,6 +67,26 @@ adk web
 
 This will start the agent in web mode, allowing you to interact with it through a web interface on localhost:8000.
 
+To run the agent in API mode, use the following command:
+
+```bash
+adk api
+```
+
+To test the agent in API mode, use the following command first create a new session by issuing the following command:
+
+```
+curl -X POST http://0.0.0.0:8000/apps/kube/users/u_123/sessions/s_123 -H "Content-Type: application/json" -d '{"state": {"key1": "value1", "key2": 42}}'
+```
+Followed by issuing the following command to send a message to the agent:
+
+```
+curl -X POST http://0.0.0.0:8000/apps/kube/users/u_123/sessions/s_123/messages -H "Content-Type: application/json" -d '{"message": "How many pods are running in the default namespace?"}'
+```
+
+
+
+
 ## Structure
 
 - `kube/`
